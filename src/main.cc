@@ -8,9 +8,27 @@
 // SHOW macro prints the variable name and its value
 #define SHOW(a) std::clog << #a << ": " << (a) << std::endl;
 
+// given a sphere in 3d space, and a raycast, does this ray hit the sphere?
+bool hit_sphere(const point3 & center, double radius, const ray & r)
+{
+    vec3   oc = r.origin() - center;
+    double a  = dot(r.direction(), r.direction());
+    double b  = 2.0 * dot(oc, r.direction());
+    double c  = dot(oc, oc) - radius * radius;
+    double D  = b * b - 4 * a * c; // discriminant
+    return (D >= 0);
+}
+
 // ray_color will directly give a color output for a single raycast.
 color ray_color(const ray & r)
 {
+    // Draw a sphere
+    if (hit_sphere(point3(0, 0, -1), 0.5, r))
+    {
+        return color(1, 0, 0);
+    }
+
+    // Gradiant blue sky background
     vec3   u = unit_vector(r.direction()); // unit vector of our ray
     double a = 0.5 * (u.y() + 1.0);        // a is the intensity of the color
     return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
