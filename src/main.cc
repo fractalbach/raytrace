@@ -5,18 +5,22 @@
 #include <fstream>
 #include <iostream>
 
+// SHOW macro prints the variable name and its value
+#define SHOW(a) std::clog << #a << ": " << (a) << std::endl;
+
+// ray_color will directly give a color output for a single raycast.
 color ray_color(const ray & r)
 {
-    vec3   u = unit_vector(r.direction());
-    double a = 0.5 * (u.y() + 1.0);
+    vec3   u = unit_vector(r.direction()); // unit vector of our ray
+    double a = 0.5 * (u.y() + 1.0);        // a is the intensity of the color
     return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
 }
 
 void render(std::ostream & out)
 {
-    static const double aspect_ratio = 16.0 / 9.0;
-    static const int    image_width  = 400;
-    static const int    image_height = static_cast<int>(image_width / aspect_ratio);
+    double aspect_ratio = 16.0 / 9.0;
+    int    image_width  = 400;
+    int    image_height = static_cast<int>(image_width / aspect_ratio);
 
     std::clog << "aspect_ratio: " << aspect_ratio << std::endl;
     std::clog << "image_width : " << image_width << std::endl;
@@ -31,13 +35,22 @@ void render(std::ostream & out)
     double viewport_width  = viewport_height * (static_cast<double>(image_width) / image_height);
     point3 camera_center   = point3(0, 0, 0);
 
-    // vectors that represent to the viewport edges (right and down)
+    SHOW(viewport_height);
+    SHOW(viewport_width);
+
+    // A viewport is like a window into the 3d world. It exists in the 3d world, but has a grid of pixels, just like our
+    // output image. We map the viewport (u,v) -> image (x,y).
+
+    // vectors that represent to the viewport edges (right anddown)
     vec3 viewport_u = vec3(viewport_width, 0, 0);
     vec3 viewport_v = vec3(0, -viewport_height, 0);
 
+    SHOW(viewport_u);
+    SHOW(viewport_v);
+
     // calculate horizontal andvertical delta vectors from pixel to pixel
     vec3 pixel_delta_u = viewport_u / image_width;
-    vec3 pixel_delta_v = viewport_u / image_height;
+    vec3 pixel_delta_v = viewport_v / image_height;
 
     // calculate location of upper-left pixel
     vec3 viewport_upper_left = camera_center - vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
