@@ -10,7 +10,7 @@ class camera
 public:
     double aspect_ratio      = 16.0 / 9.0; // Ratio of image width over height
     int    image_width       = 400;        // Rendered image width in pixel count
-    int    samples_per_pixel = 100;         // Count of random samples used for antialiasing
+    int    samples_per_pixel = 16;        // Count of random samples used for antialiasing
 
     void render(const hittable & world)
     {
@@ -23,6 +23,15 @@ public:
             std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i = 0; i < image_width; ++i)
             {
+                // Do 4 samples per pixel by dividing evenly
+                // color pixel_color(0, 0, 0);
+                // for (int sample = 0; sample < 4; sample++)
+                // {
+                //     ray r = get_ray_4sample(i, j, sample);
+                //     pixel_color += ray_color(r, world);
+                // }
+                // write_color(std::cout, pixel_color, 4);
+
                 // Do random sampling based on the number of samples
                 color pixel_color(0, 0, 0);
                 for (int sample = 0; sample < samples_per_pixel; sample++)
@@ -95,10 +104,36 @@ private:
         return ray(ray_origin, ray_direction);
     }
 
+    ray get_ray_4sample(int i, int j, int sample) const
+    {
+        auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
+
+        auto offset_x = -0.5;
+        auto offset_y = -0.5;
+        if (sample == 1)
+        {
+            offset_x = 0.5;
+        }
+        else if (sample == 2)
+        {
+            offset_y = 0.5;
+        }
+        else if (sample == 3)
+        {
+            offset_x = 0.5;
+            offset_y = 0.5;
+        }
+        auto offset_vec    = (offset_x * pixel_delta_u) + (offset_y * pixel_delta_v);
+        auto pixel_sample  = pixel_center + offset_vec;
+        auto ray_origin    = center;
+        auto ray_direction = pixel_sample - ray_origin;
+        return ray(ray_origin, ray_direction);
+    }
+
     vec3 pixel_sample_square() const
     {
-        auto px = -0.5 + random_double();
-        auto py = -0.5 + random_double();
+        auto px = -0.5 + utils::random_double();
+        auto py = -0.5 + utils::random_double();
         return (px * pixel_delta_u) + (py * pixel_delta_v);
     }
 };

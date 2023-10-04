@@ -26,6 +26,7 @@
 
 int main()
 {
+    utils::randomize();
 
     hittable_list world; // the list of all objects in our world
     camera        cam;   // how we view this world
@@ -34,6 +35,14 @@ int main()
     world.add(std::make_shared<sphere>(point3(1, 0, -2), 0.5));
     world.add(std::make_shared<sphere>(point3(-1, 0, -2), 0.5));
     world.add(std::make_shared<sphere>(point3(-1, 2, -2.5), 0.5));
+
+    for (int i = 0; i < 20; i++)
+    {
+        double x = utils::random_double_range(-7.0, 7.0);
+        double y = utils::random_double_range(0.0, 5.0);
+        double z = utils::random_double_range(-15.0, -1.0);
+        world.add(std::make_shared<sphere>(point3(x, y, z), 0.5));
+    }
 
     world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100)); // acts like a ground
 
