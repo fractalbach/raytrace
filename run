@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # Remove old output if it exists
-[ ! -e out/test.ppm ] || rm out/test.ppm && echo "removed: out/test.ppm"
-[ ! -e out/test.png ] || rm out/test.png && echo "removed: out/test.png"
+# [ ! -e out/test.ppm ] || rm out/test.ppm && echo "removed: out/test.ppm"
+# [ ! -e out/test.png ] || rm out/test.png && echo "removed: out/test.png"
 
 # Compile c++ to linux executable
 ./scripts/build.sh &&

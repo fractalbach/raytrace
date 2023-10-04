@@ -12,10 +12,10 @@ inline double degrees_to_radians(double degrees)
 }
 
 // Returns a random real in [min,max).
-inline double random_double(double min, double max)
-{
-    return min + (max - min) * random_double();
-}
+// inline double random_double(double min, double max)
+// {
+//     return min + (max - min) * random_double();
+// }
 
 // Returns a random real in [0,1).
 // inline double random_double()
