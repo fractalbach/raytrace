@@ -1,10 +1,10 @@
 #include "camera.h"
 #include "hittable_list.h"
-#include "rtweekend.h"
 #include "sphere.h"
 
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 // SHOW macro prints a variable's name and then its value
 #define SHOW(a) std::clog << #a << ": " << (a) << std::endl;
@@ -30,12 +30,12 @@ int main()
     hittable_list world; // the list of all objects in our world
     camera        cam;   // how we view this world
 
-    world.add(make_shared<sphere>(point3(0, 0, -1), 0.5));
-    world.add(make_shared<sphere>(point3(1, 0, -2), 0.5));
-    world.add(make_shared<sphere>(point3(-1, 0, -2), 0.5));
-    world.add(make_shared<sphere>(point3(-1, 2, -2.5), 0.5));
+    world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));
+    world.add(std::make_shared<sphere>(point3(1, 0, -2), 0.5));
+    world.add(std::make_shared<sphere>(point3(-1, 0, -2), 0.5));
+    world.add(std::make_shared<sphere>(point3(-1, 2, -2.5), 0.5));
 
-    world.add(make_shared<sphere>(point3(0, -100.5, -1), 100)); // acts like a ground
+    world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100)); // acts like a ground
 
     cam.render(world);
 }

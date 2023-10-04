@@ -4,6 +4,8 @@
 #include "hittable.h"
 #include "vec3.h"
 
+#include <cmath>
+
 class sphere : public hittable
 {
 private:
@@ -25,7 +27,7 @@ public:
         {
             return false;
         }
-        auto sqrtd = sqrt(D);
+        auto sqrtd = std::sqrt(D);
 
         // Find the nearest root that lies in the acceptable range.
         auto root = (-half_b - sqrtd) / a;

@@ -3,7 +3,6 @@
 
 #include "color.h"
 #include "hittable.h"
-#include "rtweekend.h"
 
 class camera
 {
