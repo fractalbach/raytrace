@@ -1,5 +1,9 @@
 #include "color.h"
+#include "hittable.h"
+#include "hittable_list.h"
 #include "ray.h"
+#include "rtweekend.h"
+#include "sphere.h"
 #include "vec3.h"
 
 #include <fstream>
@@ -8,39 +12,15 @@
 // SHOW macro prints a variable's name and then its value
 #define SHOW(a) std::clog << #a << ": " << (a) << std::endl;
 
-// given a sphere in 3d space, and a raycast, does this ray hit the sphere?
-// returns a time t where the ray hits the sphere, but if the there's no hit, then the second pair returns false.
-std::pair<double, bool> hit_sphere(const point3 & center, double radius, const ray & r)
-{
-    vec3   oc = r.origin() - center;
-    double a  = dot(r.direction(), r.direction());
-    double b  = 2.0 * dot(oc, r.direction());
-    double c  = dot(oc, oc) - radius * radius;
-    double D  = b * b - 4 * a * c; // discriminant
-    if (D < 0)
-    {
-        return std::make_pair(-1.0, false); // the ray did not hit the sphere
-    }
-    else
-    {
-        double t = (-b - sqrt(D)) / (2.0 * a); // where the ray first contacts the sphere
-        return std::make_pair(t, true);        // sphere was hit, so return a value and a true
-    }
-}
-
 // ray_color will directly give a color output for a single raycast.
-color ray_color(const ray & r)
+color ray_color(const ray & r, const hittable & world)
 {
-    // Check if the ray hit the sphere
-    auto   result = hit_sphere(point3(0, 0, -1), 0.5, r);
-    double t      = result.first;
-    bool   ok     = result.second;
+    // Check if the ray hit the object
+    hit_record rec;
 
-    // If the sphere was hit, draw the normal vector
-    if (ok)
+    if (world.hit(r, 0, infinity, rec))
     {
-        vec3 n = unit_vector(r.at(t) - vec3(0, 0, -1));      // calculate the normal
-        return 0.5 * color(n.x() + 1, n.y() + 1, n.z() + 1); // make it look fancy
+        return 0.5 * (rec.normal + color(1, 1, 1));
     }
 
     // Gradiant blue sky background
@@ -51,18 +31,31 @@ color ray_color(const ray & r)
 
 void render(std::ostream & out)
 {
+
+    // Image
+
     double aspect_ratio = 16.0 / 9.0;
     int    image_width  = 400;
     int    image_height = static_cast<int>(image_width / aspect_ratio);
+
+    image_height = (image_height < 1) ? 1 : image_height; // ensure the image height is at least 1
 
     std::clog << "aspect_ratio: " << aspect_ratio << std::endl;
     std::clog << "image_width : " << image_width << std::endl;
     std::clog << "image_height: " << image_height << std::endl;
 
-    // ensures that image_height is at least 1
-    // image_height                     = (image_height < 1) ? 1 : image_height;
+    // World
+
+    hittable_list world;
+    world.add(make_shared<sphere>(point3(0, 0, -1), 0.5));
+    world.add(make_shared<sphere>(point3(1, 0, -2), 0.5));
+    world.add(make_shared<sphere>(point3(-1, 0, -2), 0.5));
+    world.add(make_shared<sphere>(point3(-1, 2, -2.5), 0.5));
+
+    world.add(make_shared<sphere>(point3(0, -100.5, -1), 100)); // acts like a ground
 
     // Camera
+
     double focal_length    = 1.0;
     double viewport_height = 2.0;
     double viewport_width  = viewport_height * (static_cast<double>(image_width) / image_height);
@@ -89,10 +82,10 @@ void render(std::ostream & out)
     vec3 viewport_upper_left = camera_center - vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
     vec3 pixel00_loc         = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
-    // print the PPM image header
+    // Render to a .PPM image
+
     out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-    // print the pixels
     for (int j = 0; j < image_height; ++j)
     {
         std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
@@ -102,7 +95,7 @@ void render(std::ostream & out)
             auto ray_direction = pixel_center - camera_center;
 
             ray   r(camera_center, ray_direction);
-            color pixel_color = ray_color(r);
+            color pixel_color = ray_color(r, world);
 
             write_color(out, pixel_color);
         }
