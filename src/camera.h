@@ -10,7 +10,8 @@ class camera
 public:
     double aspect_ratio      = 16.0 / 9.0; // Ratio of image width over height
     int    image_width       = 400;        // Rendered image width in pixel count
-    int    samples_per_pixel = 16;        // Count of random samples used for antialiasing
+    int    samples_per_pixel = 32;         // Count of random samples used for antialiasing
+    int    max_depth         = 32;         // maximum number of ray bounces allowed per raycast
 
     void render(const hittable & world)
     {
@@ -37,7 +38,7 @@ public:
                 for (int sample = 0; sample < samples_per_pixel; sample++)
                 {
                     ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, world);
+                    pixel_color += ray_color(r, max_depth, world);
                 }
                 write_color(std::cout, pixel_color, samples_per_pixel);
             }
@@ -78,14 +79,25 @@ private:
     }
 
     // ray_color will directly give a color output for a single raycast.
-    color ray_color(const ray & r, const hittable & world) const
+    color ray_color(const ray & r, int depth, const hittable & world) const
     {
+        // break out if we've maxed our recursion depth
+        if (depth <= 0)
+        {
+            return color(0, 0, 0);
+        }
+
         // Check if the ray hit the object
         hit_record rec;
 
-        if (world.hit(r, interval(0, infinity), rec))
+        if (world.hit(r, interval(0.001, infinity), rec))
         {
-            return 0.5 * (rec.normal + color(1, 1, 1));
+            // DIFFUSION
+            vec3 direction = random_on_hemisphere(rec.normal);
+            return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+
+            // COLOR-CODE BY NORMAL VECTOR
+            // return 0.5 * (rec.normal + color(1, 1, 1));
         }
 
         // Gradiant blue sky background

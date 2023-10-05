@@ -26,15 +26,16 @@
 
 int main()
 {
-    utils::randomize();
+    // utils::randomize(); // seed the randomizer with current time to get a different image each time
 
     hittable_list world; // the list of all objects in our world
     camera        cam;   // how we view this world
 
-    world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));
-    world.add(std::make_shared<sphere>(point3(1, 0, -2), 0.5));
-    world.add(std::make_shared<sphere>(point3(-1, 0, -2), 0.5));
-    world.add(std::make_shared<sphere>(point3(-1, 2, -2.5), 0.5));
+    world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));        // front-most
+    world.add(std::make_shared<sphere>(point3(1, 0, -2), 0.5));        // right sidekick
+    world.add(std::make_shared<sphere>(point3(-1, 0, -2), 0.5));       // left sidekick
+    world.add(std::make_shared<sphere>(point3(2, -0.25, -1.5), 0.25)); // smaller on the right
+    world.add(std::make_shared<sphere>(point3(-1, 2, -2.5), 0.5));     // floater
 
     for (int i = 0; i < 20; i++)
     {
