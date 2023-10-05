@@ -11,7 +11,7 @@ public:
     double aspect_ratio      = 16.0 / 9.0; // Ratio of image width over height
     int    image_width       = 400;        // Rendered image width in pixel count
     int    samples_per_pixel = 16;         // Count of random samples used for antialiasing
-    int    max_depth         = 8;         // maximum number of ray bounces allowed per raycast
+    int    max_depth         = 8;          // maximum number of ray bounces allowed per raycast
 
     void render(const hittable & world)
     {
@@ -94,6 +94,11 @@ private:
         {
             // DIFFUSION
             vec3 direction = random_on_hemisphere(rec.normal);
+
+            // custom neat hack: combines the normal vector coloring with the diffusion
+            // if (depth == max_depth)
+            //     return 0.8 * (rec.normal + color(1, 1, 1)) * ray_color(ray(rec.p, direction), depth - 1, world);
+
             return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
 
             // COLOR-CODE BY NORMAL VECTOR

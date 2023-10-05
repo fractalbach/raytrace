@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <string>
 
 // SHOW macro prints a variable's name and then its value
 #define SHOW(a) std::clog << #a << ": " << (a) << std::endl;
@@ -24,7 +25,7 @@
 //     return 0;
 // }
 
-int main()
+int main(int argc, char * argv[])
 {
     // utils::randomize(); // seed the randomizer with current time to get a different image each time
 
@@ -33,9 +34,14 @@ int main()
 
     // Turn this on to get an epic render that will take ages to produce
     bool fancy = false;
+    if (argc >= 2 && std::string(argv[1]) == "fancy")
+    {
+        fancy = true;
+        std::clog << "Fancy Mode Enabled." << std::endl;
+    }
 
     cam.samples_per_pixel = fancy ? 128 : 8;
-    cam.max_depth         = fancy ? 128 : 8;
+    cam.max_depth         = fancy ? 64 : 8;
 
     world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));        // front-most
     world.add(std::make_shared<sphere>(point3(1, 0, -2), 0.5));        // right sidekick
