@@ -31,6 +31,12 @@ int main()
     hittable_list world; // the list of all objects in our world
     camera        cam;   // how we view this world
 
+    // Turn this on to get an epic render that will take ages to produce
+    bool fancy = false;
+
+    cam.samples_per_pixel = fancy ? 128 : 8;
+    cam.max_depth         = fancy ? 128 : 8;
+
     world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));        // front-most
     world.add(std::make_shared<sphere>(point3(1, 0, -2), 0.5));        // right sidekick
     world.add(std::make_shared<sphere>(point3(-1, 0, -2), 0.5));       // left sidekick

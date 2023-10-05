@@ -10,8 +10,8 @@ class camera
 public:
     double aspect_ratio      = 16.0 / 9.0; // Ratio of image width over height
     int    image_width       = 400;        // Rendered image width in pixel count
-    int    samples_per_pixel = 32;         // Count of random samples used for antialiasing
-    int    max_depth         = 32;         // maximum number of ray bounces allowed per raycast
+    int    samples_per_pixel = 16;         // Count of random samples used for antialiasing
+    int    max_depth         = 8;         // maximum number of ray bounces allowed per raycast
 
     void render(const hittable & world)
     {
