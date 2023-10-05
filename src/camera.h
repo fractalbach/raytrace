@@ -24,16 +24,6 @@ public:
             std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i = 0; i < image_width; ++i)
             {
-                // Do 4 samples per pixel by dividing evenly
-                // color pixel_color(0, 0, 0);
-                // for (int sample = 0; sample < 4; sample++)
-                // {
-                //     ray r = get_ray_4sample(i, j, sample);
-                //     pixel_color += ray_color(r, world);
-                // }
-                // write_color(std::cout, pixel_color, 4);
-
-                // Do random sampling based on the number of samples
                 color pixel_color(0, 0, 0);
                 for (int sample = 0; sample < samples_per_pixel; sample++)
                 {
@@ -83,9 +73,7 @@ private:
     {
         // break out if we've maxed our recursion depth
         if (depth <= 0)
-        {
             return color(0, 0, 0);
-        }
 
         // Check if the ray hit the object
         hit_record rec;
@@ -115,32 +103,6 @@ private:
     {
         auto pixel_center  = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
         auto pixel_sample  = pixel_center + pixel_sample_square();
-        auto ray_origin    = center;
-        auto ray_direction = pixel_sample - ray_origin;
-        return ray(ray_origin, ray_direction);
-    }
-
-    ray get_ray_4sample(int i, int j, int sample) const
-    {
-        auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-
-        auto offset_x = -0.5;
-        auto offset_y = -0.5;
-        if (sample == 1)
-        {
-            offset_x = 0.5;
-        }
-        else if (sample == 2)
-        {
-            offset_y = 0.5;
-        }
-        else if (sample == 3)
-        {
-            offset_x = 0.5;
-            offset_y = 0.5;
-        }
-        auto offset_vec    = (offset_x * pixel_delta_u) + (offset_y * pixel_delta_v);
-        auto pixel_sample  = pixel_center + offset_vec;
         auto ray_origin    = center;
         auto ray_direction = pixel_sample - ray_origin;
         return ray(ray_origin, ray_direction);

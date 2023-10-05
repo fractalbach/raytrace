@@ -11,21 +11,6 @@
 // SHOW macro prints a variable's name and then its value
 #define SHOW(a) std::clog << #a << ": " << (a) << std::endl;
 
-// int write_file()
-// {
-//     static const char * filepath_output_image = "out/test.ppm";
-//     std::ofstream       f;
-//     f.open(filepath_output_image, std::ios::out | std::ios::trunc);
-//     if (!f.is_open())
-//     {
-//         std::cerr << "Unable to open file" << std::endl;
-//         return 1;
-//     }
-//     render(f);
-//     f.close();
-//     return 0;
-// }
-
 int main(int argc, char * argv[])
 {
     // ========================================
