@@ -8,7 +8,7 @@
 ./scripts/build.sh &&
 
 # Run the program
-./bin/main > out/test.ppm "$@" &&
+time -p ./bin/main > out/test.ppm "$@" &&
 
 # Convert the image output
 echo "converting" &&
