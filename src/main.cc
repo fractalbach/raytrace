@@ -1,6 +1,7 @@
 #include "camera.h"
 #include "hittable_list.h"
 #include "sphere.h"
+#include "third_party/argparse.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -27,18 +28,53 @@
 
 int main(int argc, char * argv[])
 {
-    // utils::randomize(); // seed the randomizer with current time to get a different image each time
+    // ========================================
+    // ARGUMENT PARSING
+    // ========================================
+
+    argparse::ArgumentParser program("raytrace");
+
+    program.add_argument("-f", "--fancy")
+        .help("Produces a more detailed image. Takes more time.")
+        .default_value(false)
+        .implicit_value(true);
+
+    program.add_argument("-r", "--randomize")
+        .help("Seeds the RNG with the current time.")
+        .default_value(false)
+        .implicit_value(true);
+
+    try
+    {
+        program.parse_args(argc, argv);
+    }
+    catch (const std::runtime_error & err)
+    {
+        std::cerr << err.what() << std::endl;
+        std::cerr << program;
+        std::exit(1);
+    }
+
+    bool fancy     = program.get<bool>("fancy");
+    bool randomize = program.get<bool>("randomize");
+
+    if (randomize)
+    {
+        std::clog << "Enabled: Randomize the RNG seed" << std::endl;
+        utils::randomize(); // seed the randomizer with current time to get a different image each time
+    }
+
+    if (fancy)
+    {
+        std::clog << "Enabled: Fancy output" << std::endl;
+    }
+
+    // ========================================
+    // RENDER THE WORLD
+    // ========================================
 
     hittable_list world; // the list of all objects in our world
     camera        cam;   // how we view this world
-
-    // Turn this on to get an epic render that will take ages to produce
-    bool fancy = false;
-    if (argc >= 2 && std::string(argv[1]) == "fancy")
-    {
-        fancy = true;
-        std::clog << "Fancy Mode Enabled." << std::endl;
-    }
 
     cam.samples_per_pixel = fancy ? 128 : 8;
     cam.max_depth         = fancy ? 64 : 8;
