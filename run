@@ -5,11 +5,13 @@
 # [ ! -e out/test.png ] || rm out/test.png && echo "removed: out/test.png"
 
 # Compile c++ to linux executable
-./scripts/build.sh &&
+echo "===[ BUILD ]===" &&
+time -p ./scripts/build.sh &&
 
 # Run the program
+echo "===[ RUN ]===" &&
 time -p ./bin/main > out/test.ppm "$@" &&
 
 # Convert the image output
-echo "converting" &&
+echo "===[ CONVERT ]===" &&
 convert out/test.ppm out/test.png

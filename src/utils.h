@@ -4,6 +4,7 @@
 #include "constants.h"
 
 #include <cstdlib>
+#include <iostream>
 #include <random>
 
 namespace utils
@@ -12,7 +13,15 @@ namespace utils
 // seed the random number generator, call this once.
 void randomize()
 {
-    srand(time(NULL));
+    unsigned int seed = static_cast<unsigned int>(time(NULL));
+    std::clog << "Seed to Use: " << seed << std::endl;
+    srand(seed);
+}
+
+// seed the random number generator with a specific provided seed
+void randomize(unsigned int seed)
+{
+    srand(seed);
 }
 
 inline double degrees_to_radians(double degrees)

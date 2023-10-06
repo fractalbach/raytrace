@@ -22,14 +22,19 @@ int main(int argc, char * argv[])
     argparse::ArgumentParser program("raytrace");
 
     program.add_argument("-f", "--fancy")
-        .help("Produces a more detailed image. Takes more time.")
+        .help("produces a more detailed image, but takes more time")
         .default_value(false)
         .implicit_value(true);
 
     program.add_argument("-r", "--randomize")
-        .help("Seeds the RNG with the current time.")
+        .help("seeds the RNG with the current time")
         .default_value(false)
         .implicit_value(true);
+
+    program.add_argument("-s", "--seed")
+        .help("seeds the RNG with an unsigned integer you provide")
+        .metavar("UINT")
+        .scan<'i', unsigned int>();
 
     try
     {
@@ -44,8 +49,15 @@ int main(int argc, char * argv[])
 
     bool fancy     = program.get<bool>("fancy");
     bool randomize = program.get<bool>("randomize");
+    bool seed_used = program.is_used("seed");
 
-    if (randomize)
+    if (seed_used)
+    {
+        unsigned int seed = program.get<unsigned int>("seed");
+        std::clog << "Enabled: Custom RNG seed provided: " << seed << std::endl;
+        utils::randomize(seed);
+    }
+    else if (randomize)
     {
         std::clog << "Enabled: Randomize the RNG seed" << std::endl;
         utils::randomize(); // seed the randomizer with current time to get a different image each time
@@ -63,7 +75,7 @@ int main(int argc, char * argv[])
     hittable_list world; // the list of all objects in our world
     camera        cam;   // how we view this world
 
-    auto material_ground = std::make_shared<lambertian>(color(0.8, 0.8, 0.0));
+    auto material_ground = std::make_shared<lambertian>(color(0.1, 0.8, 0.2));
     auto material_center = std::make_shared<lambertian>(color(0.7, 0.3, 0.3));
     auto material_left   = std::make_shared<metal>(color(0.8, 0.8, 0.8));
     auto material_right  = std::make_shared<metal>(color(0.8, 0.6, 0.2));
@@ -73,7 +85,7 @@ int main(int argc, char * argv[])
     world.add(std::make_shared<sphere>(point3(-1.0, 0.0, -1.5), 0.5, material_left));
     world.add(std::make_shared<sphere>(point3(1.0, 0.0, -1.5), 0.5, material_right));
 
-    cam.samples_per_pixel = fancy ? 128 : 8;
+    cam.samples_per_pixel = fancy ? 128 : 16;
     cam.max_depth         = fancy ? 64 : 8;
 
     // world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));        // front-most
