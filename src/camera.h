@@ -3,6 +3,7 @@
 
 #include "color.h"
 #include "hittable.h"
+#include "material.h"
 #include "utils.h"
 
 class camera
@@ -80,13 +81,17 @@ private:
 
         if (world.hit(r, interval(0.001, infinity), rec))
         {
-            // DIFFUSION
-            vec3 direction = rec.normal + random_unit_vector();
+            ray   scattered;
+            color attenuation;
+            if (rec.mat->scatter(r, rec, attenuation, scattered))
+                return attenuation * ray_color(scattered, depth - 1, world);
+            return color(0, 0, 0);
 
-            // custom hack to aded nice colors
-            return 0.5 * (rec.normal + color(1, 1, 1)) * ray_color(ray(rec.p, direction), depth - 1, world);
-
-            return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
+            // // DIFFUSION
+            // vec3 direction = rec.normal + random_unit_vector();
+            // // custom hack to aded nice colors
+            // return 0.5 * (rec.normal + color(1, 1, 1)) * ray_color(ray(rec.p, direction), depth - 1, world);
+            // return 0.5 * ray_color(ray(rec.p, direction), depth - 1, world);
 
             // COLOR-CODE BY NORMAL VECTOR
             // return 0.5 * (rec.normal + color(1, 1, 1));
