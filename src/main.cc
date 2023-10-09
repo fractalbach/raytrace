@@ -36,6 +36,12 @@ int main(int argc, char * argv[])
         .metavar("UINT")
         .scan<'i', unsigned int>();
 
+    program.add_argument("--fov")
+        .help("Camera's Vertical Field of View")
+        .default_value(90)
+        .metavar("INT")
+        .scan<'i', int>();
+
     try
     {
         program.parse_args(argc, argv);
@@ -50,6 +56,7 @@ int main(int argc, char * argv[])
     bool fancy     = program.get<bool>("fancy");
     bool randomize = program.get<bool>("randomize");
     bool seed_used = program.is_used("seed");
+    int  fov       = program.get<int>("fov");
 
     if (seed_used)
     {
@@ -77,6 +84,10 @@ int main(int argc, char * argv[])
 
     cam.samples_per_pixel = fancy ? 128 : 16;
     cam.max_depth         = fancy ? 32 : 8;
+    cam.vfov              = fov;
+    cam.lookfrom          = point3(-2, 2, 1);
+    cam.lookat            = point3(0, 0, -1);
+    cam.vup               = vec3(0, 1, 0);
 
     auto material_ground = std::make_shared<lambertian>(color(0.1, 0.8, 0.2)); // green
     auto material_center = std::make_shared<dielectric>(1.5);
@@ -87,18 +98,18 @@ int main(int argc, char * argv[])
     auto material_silver = std::make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
 
     world.add(std::make_shared<sphere>(point3(0.0, -100.5, -3.0), 100.0, material_ground)); // GROUND
-    world.add(std::make_shared<sphere>(point3(0.0, 0.0, -1.5), 0.5, material_red));         // MIDDLE
-    world.add(std::make_shared<sphere>(point3(-1.0, 0.0, -1.5), -0.5, material_left));      // LEFT
-    world.add(std::make_shared<sphere>(point3(1.0, 0.0, -1.5), 0.5, material_gold));        // RIGHT
+    world.add(std::make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5, material_red));         // MIDDLE
+    world.add(std::make_shared<sphere>(point3(-1.0, 0.0, -1.0), -0.5, material_left));      // LEFT
+    world.add(std::make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_gold));        // RIGHT
 
     for (int i = 0; i < 20; i++)
     {
         double x   = utils::random_double_range(-7.0, 7.0);
-        double y   = utils::random_double_range(0.0, 3.0);
-        double z   = utils::random_double_range(-5.0, 1.0);
+        double y   = utils::random_double_range(0.0, 0.0);
+        double z   = utils::random_double_range(-5.0, -2.0);
         auto   c   = color(utils::random_double(), utils::random_double(), utils::random_double());
         auto   mat = std::make_shared<lambertian>(c);
-        world.add(std::make_shared<sphere>(point3(x, y, z), 0.5, mat));
+        world.add(std::make_shared<sphere>(point3(x, y, z), 0.25, mat));
     }
 
     using namespace std;
