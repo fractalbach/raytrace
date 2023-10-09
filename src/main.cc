@@ -75,25 +75,21 @@ int main(int argc, char * argv[])
     hittable_list world; // the list of all objects in our world
     camera        cam;   // how we view this world
 
-    auto material_ground = std::make_shared<lambertian>(color(0.1, 0.8, 0.2));
-    auto material_center = std::make_shared<lambertian>(color(0.7, 0.3, 0.3));
-    auto material_left   = std::make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
-    auto material_right  = std::make_shared<metal>(color(0.8, 0.6, 0.2), 0.7);
-
-    world.add(std::make_shared<sphere>(point3(0.0, -100.5, -3.0), 100.0, material_ground));
-    world.add(std::make_shared<sphere>(point3(0.0, 0.0, -1.5), 0.5, material_center));
-    world.add(std::make_shared<sphere>(point3(-1.0, 0.0, -1.5), 0.5, material_left));
-    world.add(std::make_shared<sphere>(point3(1.0, 0.0, -1.5), 0.5, material_right));
-
-    cam.samples_per_pixel = fancy ? 128 : 8;
+    cam.samples_per_pixel = fancy ? 128 : 16;
     cam.max_depth         = fancy ? 32 : 8;
 
-    // world.add(std::make_shared<sphere>(point3(0, 0, -1), 0.5));        // front-most
-    // world.add(std::make_shared<sphere>(point3(1, 0, -2), 0.5));        // right sidekick
-    // world.add(std::make_shared<sphere>(point3(-1, 0, -2), 0.5));       // left sidekick
-    // world.add(std::make_shared<sphere>(point3(2, -0.25, -1.5), 0.25)); // smaller on the right
-    // world.add(std::make_shared<sphere>(point3(-1, 2, -2.5), 0.5));     // floater
-    // world.add(std::make_shared<sphere>(point3(0, -100.5, -1), 100)); // acts like a ground
+    auto material_ground = std::make_shared<lambertian>(color(0.1, 0.8, 0.2)); // green
+    auto material_center = std::make_shared<dielectric>(1.5);
+    auto material_left   = std::make_shared<dielectric>(1.5);
+
+    auto material_gold   = std::make_shared<metal>(color(0.8, 0.6, 0.2), 0.7);
+    auto material_red    = std::make_shared<lambertian>(color(0.7, 0.3, 0.3));
+    auto material_silver = std::make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
+
+    world.add(std::make_shared<sphere>(point3(0.0, -100.5, -3.0), 100.0, material_ground)); // GROUND
+    world.add(std::make_shared<sphere>(point3(0.0, 0.0, -1.5), 0.5, material_red));         // MIDDLE
+    world.add(std::make_shared<sphere>(point3(-1.0, 0.0, -1.5), -0.5, material_left));      // LEFT
+    world.add(std::make_shared<sphere>(point3(1.0, 0.0, -1.5), 0.5, material_gold));        // RIGHT
 
     for (int i = 0; i < 20; i++)
     {
@@ -104,6 +100,20 @@ int main(int argc, char * argv[])
         auto   mat = std::make_shared<lambertian>(c);
         world.add(std::make_shared<sphere>(point3(x, y, z), 0.5, mat));
     }
+
+    using namespace std;
+
+    // Copy of Book's world for testing
+
+    // auto material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
+    // auto material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
+    // auto material_left   = make_shared<dielectric>(1.5);
+    // auto material_right  = make_shared<metal>(color(0.8, 0.6, 0.2), 0.0);
+    // world.add(make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground));
+    // world.add(make_shared<sphere>(point3(0.0, 0.0, -1.0), 0.5, material_center));
+    // world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), 0.5, material_left));
+    // world.add(make_shared<sphere>(point3(-1.0, 0.0, -1.0), -0.4, material_left));
+    // world.add(make_shared<sphere>(point3(1.0, 0.0, -1.0), 0.5, material_right));
 
     cam.render(world);
 }
