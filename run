@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 
+set -e
+
 # Remove old output if it exists
 # [ ! -e out/test.ppm ] || rm out/test.ppm && echo "removed: out/test.ppm"
 # [ ! -e out/test.png ] || rm out/test.png && echo "removed: out/test.png"
 
 # Compile c++ to linux executable
-echo "===[ BUILD ]===" &&
-time -p ./scripts/build.sh &&
+echo "===[ BUILD ]==="
+time -p ./scripts/build.sh
 
 # Run the program
-echo "===[ RUN ]===" &&
-time -p ./bin/main > out/test.ppm "$@" &&
+echo "===[ RUN ]==="
+time -p ./bin/main > out/test.ppm "$@"
 
 # Convert the image output
-echo "===[ CONVERT ]===" &&
+echo "===[ CONVERT ]==="
 convert out/test.ppm out/test.png
+rm out/test.ppm

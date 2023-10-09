@@ -54,6 +54,11 @@ int main(int argc, char * argv[])
         .metavar("INT")
         .scan<'i', int>();
 
+    program.add_argument("--frame")
+        .help("SPECIAL: frame number to use when making animations")
+        .metavar("INT")
+        .scan<'i', int>();
+
     try
     {
         program.parse_args(argc, argv);
@@ -65,28 +70,20 @@ int main(int argc, char * argv[])
         std::exit(1);
     }
 
-    bool fancy     = program.get<bool>("fancy");
-    bool randomize = program.get<bool>("randomize");
-    bool seed_used = program.is_used("seed");
-    int  fov       = program.get<int>("fov");
-    int  samples   = program.get<int>("samples");
-    int  depth     = program.get<int>("depth");
+    // ========================================
+    // RANDOM NUMBER GENERATOR SETTINGS
+    // ========================================
 
-    if (seed_used)
+    if (program.is_used("seed"))
     {
         unsigned int seed = program.get<unsigned int>("seed");
         std::clog << "Enabled: Custom RNG seed provided: " << seed << std::endl;
         utils::randomize(seed);
     }
-    else if (randomize)
+    else if (program.is_used("randomize") && program.get<bool>("randomize"))
     {
         std::clog << "Enabled: Randomize the RNG seed" << std::endl;
         utils::randomize(); // seed the randomizer with current time to get a different image each time
-    }
-
-    if (fancy)
-    {
-        std::clog << "Enabled: Fancy output" << std::endl;
     }
 
     // ========================================
@@ -96,20 +93,47 @@ int main(int argc, char * argv[])
     hittable_list world; // the list of all objects in our world
     camera        cam;   // how we view this world
 
-    cam.samples_per_pixel = fancy ? 128 : 16;
-    cam.max_depth         = fancy ? 32 : 8;
-    cam.vfov              = fov;
+    // cam.image_width       = 1200;
+    cam.samples_per_pixel = 16;
+    cam.max_depth         = 8;
+    cam.vfov              = 20;
     cam.lookfrom          = point3(13, 2, 3);
     cam.lookat            = point3(0, 0, 0);
     cam.vup               = vec3(0, 1, 0);
     cam.defocus_angle     = 0.6;
     cam.focus_dist        = 10.0;
 
+    if (program.is_used("fancy") && program.get<bool>("fancy"))
+    {
+        cam.samples_per_pixel = 128;
+        cam.max_depth         = 32;
+    }
+
     if (program.is_used("samples"))
-        cam.samples_per_pixel = samples;
+        cam.samples_per_pixel = program.get<int>("samples");
 
     if (program.is_used("depth"))
-        cam.max_depth = depth;
+        cam.max_depth = program.get<int>("depth");
+
+    if (program.is_used("fov"))
+        cam.vfov = program.get<int>("fov");
+
+    if (program.is_used("frame"))
+    {
+        int    frame  = program.get<int>("frame");
+        double period = 60.0;
+        double t      = 2.0 * pi * frame / period;
+        double x      = 13.0 * cos(t) + 0.1;
+        double z      = 13.0 * sin(t) + 0.1;
+        cam.lookfrom  = point3(x, 2, z);
+    }
+
+    // ========================================
+    // DEBUGGING INFO
+    // ========================================
+    // SHOW(cam.samples_per_pixel);
+    // SHOW(cam.max_depth);
+    // SHOW(cam.lookfrom);
 
     // ========================================
     // DEFINE THE MATERIALS AND SPHERES
