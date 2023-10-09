@@ -22,7 +22,7 @@ int main(int argc, char * argv[])
     argparse::ArgumentParser program("raytrace");
 
     program.add_argument("-f", "--fancy")
-        .help("produces a more detailed image, but takes more time")
+        .help("sets higher samples per pixel and ray depth count")
         .default_value(false)
         .implicit_value(true);
 
@@ -31,7 +31,19 @@ int main(int argc, char * argv[])
         .default_value(false)
         .implicit_value(true);
 
-    program.add_argument("-s", "--seed")
+    program.add_argument("-s", "--samples")
+        .help("sets the number of samples per pixel")
+        .default_value(16)
+        .metavar("INT")
+        .scan<'i', int>();
+
+    program.add_argument("-d", "--depth")
+        .help("sets maximum number of ray bounces")
+        .default_value(8)
+        .metavar("INT")
+        .scan<'i', int>();
+
+    program.add_argument("--seed")
         .help("seeds the RNG with an unsigned integer you provide")
         .metavar("UINT")
         .scan<'i', unsigned int>();
@@ -57,6 +69,8 @@ int main(int argc, char * argv[])
     bool randomize = program.get<bool>("randomize");
     bool seed_used = program.is_used("seed");
     int  fov       = program.get<int>("fov");
+    int  samples   = program.get<int>("samples");
+    int  depth     = program.get<int>("depth");
 
     if (seed_used)
     {
@@ -84,10 +98,17 @@ int main(int argc, char * argv[])
 
     cam.samples_per_pixel = fancy ? 128 : 16;
     cam.max_depth         = fancy ? 32 : 8;
-    cam.vfov              = fov;
-    cam.lookfrom          = point3(-2, 2, 1);
-    cam.lookat            = point3(0, 0, -1);
-    cam.vup               = vec3(0, 1, 0);
+
+    if (program.is_used("samples"))
+        cam.samples_per_pixel = samples;
+
+    if (program.is_used("depth"))
+        cam.max_depth = depth;
+
+    cam.vfov     = fov;
+    cam.lookfrom = point3(-2, 2, 1);
+    cam.lookat   = point3(0, 0, -1);
+    cam.vup      = vec3(0, 1, 0);
 
     auto material_ground = std::make_shared<lambertian>(color(0.1, 0.8, 0.2)); // green
     auto material_center = std::make_shared<dielectric>(1.5);
