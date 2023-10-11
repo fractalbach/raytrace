@@ -6,25 +6,27 @@ echo "===[ BUILD ]==="
 time -p ./scripts/build.sh
 echo "done building"
 
-echo "===[ ULTRA SPECIAL RUN BEGINS ]==="
-for value in {1..61..1}
-do
-    echo "===[ FILE ${value} ]==="
+
+echo "===[       IT BEGINS...        ]==="
+echo "===[ THE WEAVING OF THE FRAMES ]==="
+
+corez=$(expr $(nproc) - 1)
+
+letsgo() {
+    echo "===[ FILE ${1} ]==="
 
     ./bin/main \
-        --frame ${value} \
-        > out/second/${value}.ppm
+        --frame ${1} \
+        > "out/third/${1}.ppm"
 
     convert \
-        out/second/${value}.ppm \
-        out/second/png/${value}.png
+        "out/third/${1}.ppm" \
+        "out/third/${1}.png"
+}
 
-done
-echo "done running"
+export -f letsgo
 
+parallel -j${corez} letsgo ::: $(seq 60)
 
-# ffmpeg -r 24 -i 'out/second/png/%d.png' out/second/output.gif
+ffmpeg -r 24 -i 'out/third/%d.png' "out/third/output.gif"
 
-
-# cores_to_use=$(expr $(nproc) - 1)
-# echo "cores to use: ${cores_to_use}"
